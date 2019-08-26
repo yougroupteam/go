@@ -28,9 +28,10 @@ import (
 // the underlying io.Writer.  Any errors that occurred should
 // be checked by calling the Error method.
 type Writer struct {
-	Comma   rune // Field delimiter (set to ',' by NewWriter)
-	UseCRLF bool // True to use \r\n as the line terminator
-	w       *bufio.Writer
+	Comma       rune // Field delimiter (set to ',' by NewWriter)
+	UseCRLF     bool // True to use \r\n as the line terminator
+	w           *bufio.Writer
+	ForceQuoted bool
 }
 
 // NewWriter returns a new Writer that writes to w.
@@ -155,6 +156,10 @@ func (w *Writer) WriteAll(records [][]string) error {
 // of Microsoft Excel and Google Drive.
 // For Postgres, quote the data terminating string `\.`.
 func (w *Writer) fieldNeedsQuotes(field string) bool {
+	if w.ForceQuoted {
+		return true
+	}
+
 	if field == "" {
 		return false
 	}
