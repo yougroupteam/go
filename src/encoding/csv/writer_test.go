@@ -93,3 +93,25 @@ func TestError(t *testing.T) {
 		t.Error("Error should not be nil")
 	}
 }
+
+func TestForceQuoted(t *testing.T) {
+	b := &bytes.Buffer{}
+	f := NewWriter(b)
+	f.ForceQuoted = true
+	f.Write([]string{"abc"})
+	f.Flush()
+	err := f.Error()
+
+	if err != nil {
+		t.Errorf("Unexpected error: %s\n", err)
+	}
+
+	f = NewWriter(errorWriter{})
+	f.Write([]string{"abc"})
+	f.Flush()
+	out := b.String()
+	expected := "\"abc\"\n"
+	if out != expected {
+		t.Errorf("#out=%q want %q", out, expected)
+	}
+}
